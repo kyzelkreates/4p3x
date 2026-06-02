@@ -1,0 +1,23 @@
+{
+  "name": "ap3x-build-control-os",
+  "version": "5.0.0",
+  "description": "AP3X BUILD CONTROL OS \u2014 Local-first autonomous project command centre.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint src --ext .js,.jsx"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.2.1",
+    "vite": "^5.2.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.1"
+  }
+}

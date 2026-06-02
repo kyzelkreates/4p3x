@@ -1,0 +1,26 @@
+{
+  "name": "4P3X App Architecture Extractor",
+  "short_name": "4P3X Extractor",
+  "description": "Architecture extraction, validation, original blueprint generation, and report export system created by Kyzel Kreates.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#050816",
+  "theme_color": "#050816",
+  "categories": ["productivity", "developer-tools"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
