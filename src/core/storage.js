@@ -112,6 +112,7 @@ const DEFAULT_STATE = {
   },
 };
 
+// apiConfig inserted by Run 11
 let _state     = null;
 let _listeners = [];
 
@@ -201,6 +202,7 @@ function bootstrap() {
     if (!_state.blueprintCompiler) _state.blueprintCompiler = { compiledBlueprints: [], activeBlueprintId: null, generatedPrompts: [], blueprintTemplates: [], compilerSettings: { originalityStrictMode: true, includeFolderStructure: true, includeStatePlan: true, includeUXPlan: true, includeValidationPlan: true, includeDeploymentPlan: true, includeRunPlan: true }, lastCompiledAt: null };
     if (!_state.exportCentre) _state.exportCentre = { exportPacks: [], activeExportPackId: null, demoModeEnabled: false, demoProjects: [], presentationSettings: { includeBranding: true, includeSafetyNotice: true, includeRiskScorecard: true, includeImplementationRoadmap: true, includeBuildPrompt: true, includeDeveloperBrief: true, includeInvestorSummary: true }, lastExportedAt: null };
     if (!_state.productReadiness) _state.productReadiness = { checks: [], testRuns: [], activeTestRunId: null, pwaStatus: {}, deploymentStatus: {}, responsiveStatus: {}, performanceStatus: {}, issueLog: [], readinessScore: 0, lastTestedAt: null };
+    if (!_state.apiConfig) _state.apiConfig = { providers:{}, aiAgents:{}, projectConnectors:{}, activeAgentId:null, lastUpdated:null };
     if (!_state.projectDiscovery) _state.projectDiscovery = { discoveredProjects: [], activeDiscoveryId: null, discoveryRuns: [], sourceConnections: [], importedArchives: [], manualProjectRecords: [], projectHealthReports: [], rescueQueue: [], discoverySettings: { allowPublicUrlChecks: true, allowUploadedZipInspection: true, allowManualEntry: true, allowConnectedSources: false, safeMode: true, neverExportSecrets: true, requireUserSelectionForDeviceFiles: true }, lastDiscoveryRunAt: null };
     _state.systemHealth = calculateSystemHealth(_state);
   } else {
@@ -752,5 +754,76 @@ export function removeFromRescueQueueStorage(projectId) {
 export function updateDiscoverySettings(patch) {
   _state.projectDiscovery.discoverySettings = { ...(_state.projectDiscovery.discoverySettings || {}), ...patch };
   _state.appMeta.lastUpdated = new Date().toISOString();
+  persist(_state); notify(_state);
+}
+
+
+// ── API Config helpers (Run 11) ───────────────────────────────
+export function saveApiProvider(provider) {
+  if (!_state.apiConfig) _state.apiConfig = { providers:{}, aiAgents:{}, projectConnectors:{}, activeAgentId:null, lastUpdated:null };
+  const now = new Date().toISOString();
+  _state.apiConfig.providers[provider.id] = { ...(provider), updatedAt: now };
+  _state.apiConfig.lastUpdated = now;
+  _state.appMeta.lastUpdated   = now;
+  persist(_state); notify(_state);
+}
+export function deleteApiProvider(id) {
+  if (!_state.apiConfig?.providers) return;
+  delete _state.apiConfig.providers[id];
+  _state.apiConfig.lastUpdated = new Date().toISOString();
+  _state.appMeta.lastUpdated   = new Date().toISOString();
+  persist(_state); notify(_state);
+}
+export function saveAiAgent(agent) {
+  if (!_state.apiConfig) _state.apiConfig = { providers:{}, aiAgents:{}, projectConnectors:{}, activeAgentId:null, lastUpdated:null };
+  const now = new Date().toISOString();
+  _state.apiConfig.aiAgents[agent.id] = { ...agent, updatedAt: now };
+  _state.apiConfig.lastUpdated = now;
+  _state.appMeta.lastUpdated   = now;
+  persist(_state); notify(_state);
+}
+export function deleteAiAgent(id) {
+  if (!_state.apiConfig?.aiAgents) return;
+  delete _state.apiConfig.aiAgents[id];
+  if (_state.apiConfig.activeAgentId === id) _state.apiConfig.activeAgentId = null;
+  _state.apiConfig.lastUpdated = new Date().toISOString();
+  _state.appMeta.lastUpdated   = new Date().toISOString();
+  persist(_state); notify(_state);
+}
+export function setActiveAgent(id) {
+  if (!_state.apiConfig) return;
+  _state.apiConfig.activeAgentId = id;
+  _state.apiConfig.lastUpdated   = new Date().toISOString();
+  _state.appMeta.lastUpdated     = new Date().toISOString();
+  persist(_state); notify(_state);
+}
+export function saveProjectConnector(connector) {
+  if (!_state.apiConfig) _state.apiConfig = { providers:{}, aiAgents:{}, projectConnectors:{}, activeAgentId:null, lastUpdated:null };
+  const now = new Date().toISOString();
+  _state.apiConfig.projectConnectors[connector.id] = { ...connector, updatedAt: now };
+  _state.apiConfig.lastUpdated = now;
+  _state.appMeta.lastUpdated   = now;
+  persist(_state); notify(_state);
+}
+export function deleteProjectConnector(id) {
+  if (!_state.apiConfig?.projectConnectors) return;
+  delete _state.apiConfig.projectConnectors[id];
+  _state.apiConfig.lastUpdated = new Date().toISOString();
+  _state.appMeta.lastUpdated   = new Date().toISOString();
+  persist(_state); notify(_state);
+}
+export function updateApiConfigTestResult(section, id, result) {
+  if (!_state.apiConfig?.[section]?.[id]) return;
+  const now = new Date().toISOString();
+  _state.apiConfig[section][id] = {
+    ..._state.apiConfig[section][id],
+    testStatus:    result.status,
+    testMessage:   result.message,
+    verified:      result.status === "ok",
+    verifiedAt:    result.status === "ok" ? now : _state.apiConfig[section][id].verifiedAt,
+    lastTestedAt:  now,
+  };
+  _state.apiConfig.lastUpdated = now;
+  _state.appMeta.lastUpdated   = now;
   persist(_state); notify(_state);
 }
